@@ -1,5 +1,4 @@
 import "reflect-metadata";
-
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
@@ -8,8 +7,10 @@ import { UserResolver } from "./resolvers/user";
 
 createConnection()
   .then(async () => {
+    console.log("connected to db");
     const schema = await buildSchema({
       resolvers: [UserResolver],
+      validate: false,
     });
 
     const apolloServer = new ApolloServer({ schema });
@@ -20,4 +21,4 @@ createConnection()
       console.log("server started on http://localhost:4000/graphql");
     });
   })
-  .catch((error) => console.log(error));
+  .catch((error) => console.log("db connection error: ", error));

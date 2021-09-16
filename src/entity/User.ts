@@ -5,12 +5,14 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   BaseEntity,
+  OneToMany,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
+import Product from "./Product";
 
 @Entity()
 @ObjectType()
-class User extends BaseEntity{
+class User extends BaseEntity {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
   id: number;
@@ -30,7 +32,19 @@ class User extends BaseEntity{
   @Column()
   password: string;
 
-  @Column('text', { nullable: true })
+  @OneToMany(() => Product, (product) => product.user, { nullable: true })
+  @Field(() => [Product], { nullable: true })
+  products: Product[];
+
+  @OneToMany(() => Product, (product) => product.user, { nullable: true })
+  @Field(() => [Product], { nullable: true })
+  wishlist: Product[];
+
+  @OneToMany(() => Product, (product) => product.user, { nullable: true })
+  @Field(() => [Product], { nullable: true })
+  cart: Product[];
+
+  @Column("text", { nullable: true })
   @Field()
   adress: string;
 

@@ -22,21 +22,19 @@ export class RegisterInput extends LoginInput {
 
 @Resolver()
 export class UserResolver {
+  //what to return from graphql schema
   @Query(() => String)
-  async hello() {
+  //what return from resolver
+  async hello(): Promise<string> {
     return "hello";
   }
 
-  //what to return from graphql schema
   @Mutation(() => String)
   //first is var for schema, sec is used in function
   async register(
     @Arg("options", () => RegisterInput)
     options: RegisterInput
-    //what return from resolver
   ): Promise<User> {
-    // const errors = await registerFormValidation(options)
-    // if (errors.length > 0) return { errors }
 
     const hashedPassword = await argon2.hash(options.password);
     const user = User.create({
