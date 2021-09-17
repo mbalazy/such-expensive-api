@@ -33,10 +33,6 @@ class Product extends BaseEntity {
   @Field(() => User)
   user: User;
 
-  @Column("numeric", { default: 0 })
-  @Field()
-  wishlistedCount: number;
-
   @CreateDateColumn()
   @Field(() => Date)
   created_at: Date;

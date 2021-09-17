@@ -5,13 +5,12 @@ import {
   Arg,
   InputType,
   Field,
-  Ctx,
   Int,
 } from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
-import { MyContext } from "src/types";
 import Product from "../entity/Product";
+import CartItem from "../entity/CartItem";
 
 //TODO move to new file
 @InputType()
@@ -39,14 +38,6 @@ export class RegisterInput extends LoginInput {
 
 @Resolver()
 export class UserResolver {
-  //graphql/schema type
-  @Query(() => String)
-  //typescript/resolver type
-  async hello(@Ctx() ctx: MyContext): Promise<string> {
-    console.log(ctx.hi);
-    return "hello";
-  }
-
   @Query(() => [User])
   async users(): Promise<User[]> {
     return User.find({});
@@ -76,17 +67,32 @@ export class UserResolver {
     return user;
   }
 
+  //TODO create cart resolver and move it there
   @Mutation(() => Boolean)
   async addToCart(
     @Arg("options", () => CartInput) { userId, productId }: CartInput
   ): Promise<boolean> {
     const user = await User.findOne(userId);
     const product = await Product.findOne(productId);
+    //TODO better error handling
     if (!user || !product) return false;
 
-    user.cart = [...user.cart, product];
+    const existingCartItem = await CartItem.findOne({
+      relations: ["product"],
+      where: { user, product },
+    });
 
-    await user.save();
+    if (!existingCartItem) {
+      CartItem.create({
+        user,
+        product,
+        quantity: 1,
+      }).save();
+    } else {
+      existingCartItem.quantity++;
+      existingCartItem.save();
+    }
+
     return true;
   }
 }
