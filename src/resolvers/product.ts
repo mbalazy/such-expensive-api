@@ -35,8 +35,16 @@ export class ProductResolver {
     return product;
   }
 
+  @Mutation(() => Boolean)
+  async deleteProduct(@Arg("productId") productId: number) {
+    //TODO add authorization, only product owner cau do it
+    return Product.findOne(productId)
+      .then(() => true)
+      .catch(() => false);
+  }
+
   @Query(() => [Product])
-  async fetchProducts(): Promise<Product[]> {
+  async fetchAllProducts(): Promise<Product[]> {
     return await Product.find({ relations: ["user"] });
   }
 }

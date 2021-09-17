@@ -11,6 +11,7 @@ import {
 import argon2 from "argon2";
 import User from "../entity/User";
 import { MyContext } from "src/types";
+import Product from "../entity/Product";
 
 //TODO move to new file
 @InputType()
@@ -19,6 +20,14 @@ export class LoginInput {
   email: string;
   @Field()
   password: string;
+}
+
+@InputType()
+class CartInput {
+  @Field()
+  productId: number;
+  @Field()
+  userId: number;
 }
 
 @InputType()
@@ -44,8 +53,10 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async user(@Arg("id", () => Int) id: number): Promise<User | undefined> {
-    return User.findOne({ where: { id }, relations: ["products"] });
+  async user(
+    @Arg("userId", () => Int) userId: number
+  ): Promise<User | undefined> {
+    return User.findOne({ where: { id: userId }, relations: ["products"] });
   }
 
   @Mutation(() => User)
@@ -63,5 +74,19 @@ export class UserResolver {
     await user.save();
     console.log(user);
     return user;
+  }
+
+  @Mutation(() => Boolean)
+  async addToCart(
+    @Arg("options", () => CartInput) { userId, productId }: CartInput
+  ): Promise<boolean> {
+    const user = await User.findOne(userId);
+    const product = await Product.findOne(productId);
+    if (!user || !product) return false;
+
+    user.cart = [...user.cart, product];
+
+    await user.save();
+    return true;
   }
 }

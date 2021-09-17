@@ -6,6 +6,8 @@ import {
   CreateDateColumn,
   BaseEntity,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import Product from "./Product";
@@ -32,11 +34,11 @@ class User extends BaseEntity {
   @Field(() => [Product], { nullable: true })
   products: Product[];
 
-  @OneToMany(() => Product, (product) => product.user, { nullable: true })
-  @Field(() => [Product], { nullable: true })
-  wishlist: Product[];
-
-  @OneToMany(() => Product, (product) => product.user, { nullable: true })
+  @ManyToMany(() => Product, {
+    nullable: true,
+    eager: true,
+  })
+  @JoinTable()
   @Field(() => [Product], { nullable: true })
   cart: Product[];
 
