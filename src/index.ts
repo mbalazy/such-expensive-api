@@ -4,16 +4,17 @@ import { ApolloServer } from "apollo-server-express";
 import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { UserResolver } from "./resolvers/user";
+import { ProductResolver } from "./resolvers/product";
 
 createConnection()
   .then(async () => {
     console.log("connected to db");
     const schema = await buildSchema({
-      resolvers: [UserResolver],
+      resolvers: [UserResolver, ProductResolver],
       validate: false,
     });
 
-    const apolloServer = new ApolloServer({ schema });
+    const apolloServer = new ApolloServer({ schema, context: { hi: "hi" } });
     const app = express();
     apolloServer.applyMiddleware({ app });
 

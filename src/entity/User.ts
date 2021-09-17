@@ -19,11 +19,7 @@ class User extends BaseEntity {
 
   @Column()
   @Field()
-  firstName: string;
-
-  @Column({ nullable: true })
-  @Field()
-  lastName: string;
+  name: string;
 
   @Column("text", { unique: true })
   @Field()

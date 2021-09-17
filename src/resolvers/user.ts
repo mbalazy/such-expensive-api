@@ -1,6 +1,16 @@
-import { Resolver, Query, Mutation, Arg, InputType, Field } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  InputType,
+  Field,
+  Ctx,
+  Int,
+} from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
+import { MyContext } from "src/types";
 
 //TODO move to new file
 @InputType()
@@ -14,36 +24,44 @@ export class LoginInput {
 @InputType()
 export class RegisterInput extends LoginInput {
   @Field()
-  firstName: string;
-  @Field()
-  lastName: string;
+  name: string;
 }
 //end todo
 
 @Resolver()
 export class UserResolver {
-  //what to return from graphql schema
+  //graphql/schema type
   @Query(() => String)
-  //what return from resolver
-  async hello(): Promise<string> {
+  //typescript/resolver type
+  async hello(@Ctx() ctx: MyContext): Promise<string> {
+    console.log(ctx.hi);
     return "hello";
   }
 
-  @Mutation(() => String)
-  //first is var for schema, sec is used in function
+  @Query(() => [User])
+  async users(): Promise<User[]> {
+    return User.find({});
+  }
+
+  @Query(() => User, { nullable: true })
+  async user(@Arg("id", () => Int) id: number): Promise<User | undefined> {
+    return User.findOne({ where: { id }, relations: ["products"] });
+  }
+
+  @Mutation(() => User)
   async register(
     @Arg("options", () => RegisterInput)
     options: RegisterInput
   ): Promise<User> {
-
     const hashedPassword = await argon2.hash(options.password);
     const user = User.create({
-      firstName: options.firstName,
-      lastName: options.lastName,
+      name: options.name,
       password: hashedPassword,
       email: options.email,
     });
 
+    await user.save();
+    console.log(user);
     return user;
   }
 }
