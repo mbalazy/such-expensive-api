@@ -50,11 +50,14 @@ export class UserResolver {
     return User.findOne({ where: { id: userId }, relations: ["products"] });
   }
 
-  @Mutation(() => User)
+  @Mutation(() => User, { nullable: true })
   async register(
-    @Arg("options", () => RegisterInput)
+    @Arg("options")
     options: RegisterInput
-  ): Promise<User> {
+  ): Promise<User | null> {
+    const existingUser = await User.findOne({ email: options.email });
+    if (existingUser) return null;
+
     const hashedPassword = await argon2.hash(options.password);
     const user = User.create({
       name: options.name,
@@ -70,7 +73,7 @@ export class UserResolver {
   //TODO create cart resolver and move it there
   @Mutation(() => Boolean)
   async addToCart(
-    @Arg("options", () => CartInput) { userId, productId }: CartInput
+    @Arg("options") { userId, productId }: CartInput
   ): Promise<boolean> {
     const user = await User.findOne(userId);
     const product = await Product.findOne(productId);

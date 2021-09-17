@@ -6,7 +6,6 @@ import {
   CreateDateColumn,
   BaseEntity,
   OneToMany,
-  JoinColumn,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import Product from "./Product";
