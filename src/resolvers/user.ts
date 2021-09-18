@@ -6,6 +6,7 @@ import {
   InputType,
   Field,
   Int,
+  ObjectType,
 } from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
@@ -34,6 +35,23 @@ export class RegisterInput extends LoginInput {
   @Field()
   name: string;
 }
+
+@ObjectType()
+class FieldError {
+  @Field()
+  field: string;
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+class UserResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => User, { nullable: true })
+  user?: User;
+}
 //end todo
 
 @Resolver()
@@ -50,13 +68,19 @@ export class UserResolver {
     return User.findOne({ where: { id: userId }, relations: ["products"] });
   }
 
-  @Mutation(() => User, { nullable: true })
+  @Mutation(() => UserResponse, { nullable: true })
   async register(
     @Arg("options")
     options: RegisterInput
-  ): Promise<User | null> {
+  ): Promise<UserResponse> {
     const existingUser = await User.findOne({ email: options.email });
-    if (existingUser) return null;
+    if (existingUser)
+      return {
+        errors: [
+          { field: "email", message: "User with this email already exist" },
+        ],
+      };
+    //TODO name >3 chars, pass >6 chars valid email
 
     const hashedPassword = await argon2.hash(options.password);
     const user = User.create({
@@ -66,10 +90,36 @@ export class UserResolver {
     });
 
     await user.save();
-    console.log(user);
-    return user;
+    return {
+      user,
+    };
   }
 
+  @Mutation(() => UserResponse)
+  async login(
+    @Arg("options")
+    options: LoginInput
+  ): Promise<UserResponse> {
+    const user = await User.findOne({ email: options.email });
+    if (!user) {
+      return {
+        errors: [
+          { field: "email", message: "User with this email dont exist" },
+        ],
+      };
+    }
+
+    const validPassword = await argon2.verify(user.password, options.password);
+    if (!validPassword) {
+      return {
+        errors: [{ field: "password", message: "Invalid password" }],
+      };
+    }
+
+    return {
+      user,
+    };
+  }
   //TODO create cart resolver and move it there
   @Mutation(() => Boolean)
   async addToCart(
