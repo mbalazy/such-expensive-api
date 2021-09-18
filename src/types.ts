@@ -1,3 +1,6 @@
+import { Request, Response } from "express";
+
 export type MyContext = {
-  hi: string
-}
+  req: Request;
+  res: Response;
+};
