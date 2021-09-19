@@ -8,7 +8,7 @@ import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { UserResolver } from "./resolvers/user";
 import { ProductResolver } from "./resolvers/product";
-import { MyContext } from "./types";
+import cors from "cors";
 
 createConnection()
   .then(async () => {
@@ -21,6 +21,7 @@ createConnection()
     const app = express();
     const RedisStore = connectRedis(session);
     const redisClient = redis.createClient();
+    app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
     app.use(
       session({
@@ -33,7 +34,7 @@ createConnection()
           secure: process.env.NODE_ENV === "production",
         },
         secret: process.env.SESSION_STRING as string,
-        name: "qid",
+        name: process.env.SESSION_NAME,
         resave: false,
       })
     );
@@ -42,7 +43,11 @@ createConnection()
       schema,
       context: ({ req, res }) => ({ req, res }),
     });
-    apolloServer.applyMiddleware({ app });
+
+    apolloServer.applyMiddleware({
+      app,
+      cors: false,
+    });
 
     app.listen(4000, () => {
       console.log("server started on http://localhost:4000/graphql");
