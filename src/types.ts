@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 
 export type MyContext = {
-  req: Request;
+  req: Request & { session: { userId: number } };
   res: Response;
 };

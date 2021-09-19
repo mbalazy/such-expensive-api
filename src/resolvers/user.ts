@@ -7,11 +7,13 @@ import {
   Field,
   Int,
   ObjectType,
+  Ctx,
 } from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
 import Product from "../entity/Product";
 import CartItem from "../entity/CartItem";
+import { MyContext } from "src/types";
 
 //TODO move to new file
 @InputType()
@@ -98,7 +100,8 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async login(
     @Arg("options")
-    options: LoginInput
+    options: LoginInput,
+    @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
     const user = await User.findOne({ email: options.email });
     if (!user) {
@@ -115,6 +118,12 @@ export class UserResolver {
         errors: [{ field: "password", message: "Invalid password" }],
       };
     }
+
+    //storing userId in session, we can add here what we want
+    //ustawiajac to zapisuje sie cookie w przegladarce
+    //za kazdym razem jak przegladarka bedzie wysylac zapytanie
+    //to cookie bedzie 'zalaczone; i bedzie wiadomo kto jest zalogowany
+    req.session.userId = user.id;
 
     return {
       user,

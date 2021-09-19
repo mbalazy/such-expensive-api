@@ -40,7 +40,7 @@ createConnection()
 
     const apolloServer = new ApolloServer({
       schema,
-      context: ({ req, res }): MyContext => ({ req, res }),
+      context: ({ req, res }) => ({ req, res }),
     });
     apolloServer.applyMiddleware({ app });
 
