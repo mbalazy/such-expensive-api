@@ -58,6 +58,17 @@ class UserResponse {
 
 @Resolver()
 export class UserResolver {
+  @Query(() => User, { nullable: true })
+  async me(@Ctx() { req }: MyContext) {
+    const userId = req.session.userId;
+    // no userid on session? not logged
+    if (!userId) {
+      return null;
+    }
+    const user = await User.findOne(userId);
+    return user;
+  }
+
   @Query(() => [User])
   async users(): Promise<User[]> {
     return User.find({});
@@ -73,7 +84,8 @@ export class UserResolver {
   @Mutation(() => UserResponse, { nullable: true })
   async register(
     @Arg("options")
-    options: RegisterInput
+    options: RegisterInput,
+    @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
     const existingUser = await User.findOne({ email: options.email });
     if (existingUser)
@@ -92,6 +104,7 @@ export class UserResolver {
     });
 
     await user.save();
+    req.session.userId = user.id;
     return {
       user,
     };
@@ -119,10 +132,6 @@ export class UserResolver {
       };
     }
 
-    //storing userId in session, we can add here what we want
-    //ustawiajac to zapisuje sie cookie w przegladarce
-    //za kazdym razem jak przegladarka bedzie wysylac zapytanie
-    //to cookie bedzie 'zalaczone; i bedzie wiadomo kto jest zalogowany
     req.session.userId = user.id;
 
     return {
