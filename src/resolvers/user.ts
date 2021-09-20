@@ -1,60 +1,14 @@
-import {
-  Resolver,
-  Query,
-  Mutation,
-  Arg,
-  InputType,
-  Field,
-  Int,
-  ObjectType,
-  Ctx,
-} from "type-graphql";
+import { Resolver, Query, Mutation, Arg, Ctx } from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
 import Product from "../entity/Product";
 import CartItem from "../entity/CartItem";
 import { MyContext } from "src/types";
-
-//TODO move to new file
-@InputType()
-export class LoginInput {
-  @Field()
-  email: string;
-  @Field()
-  password: string;
-}
-
-@InputType()
-class CartInput {
-  @Field()
-  productId: number;
-  @Field()
-  userId: number;
-}
-
-@InputType()
-export class RegisterInput extends LoginInput {
-  @Field()
-  name: string;
-}
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-  @Field()
-  message: string;
-}
-
-@ObjectType()
-class UserResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-
-  @Field(() => User, { nullable: true })
-  user?: User;
-}
-//end todo
+import {
+  LoginInput,
+  RegisterInput,
+  UserResponse,
+} from "src/utils/inputsAndFields";
 
 @Resolver()
 export class UserResolver {
@@ -67,18 +21,6 @@ export class UserResolver {
     }
     const user = await User.findOne(userId);
     return user;
-  }
-
-  @Query(() => [User])
-  async users(): Promise<User[]> {
-    return User.find({});
-  }
-
-  @Query(() => User, { nullable: true })
-  async user(
-    @Arg("userId", () => Int) userId: number
-  ): Promise<User | undefined> {
-    return User.findOne({ where: { id: userId }, relations: ["products"] });
   }
 
   @Mutation(() => UserResponse, { nullable: true })
@@ -138,19 +80,42 @@ export class UserResolver {
       user,
     };
   }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    //check if user is logged
+    return !req.session.userId
+      ? false
+      : new Promise((resolve) =>
+          req.session.destroy((err) => {
+            res.clearCookie(process.env.SESSION_NAME as string);
+            if (err) {
+              console.log("error with session destroy ", err);
+              resolve(false);
+              return;
+            }
+            resolve(true);
+          })
+        );
+  }
+
   //TODO create cart resolver and move it there
   @Mutation(() => Boolean)
   async addToCart(
-    @Arg("options") { userId, productId }: CartInput
+    @Arg("productId") productId: number,
+    @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    const user = await User.findOne(userId);
+    if (!req.session.userId) {
+      return false;
+    }
+    const user = await User.findOne(req.session.userId);
     const product = await Product.findOne(productId);
     //TODO better error handling
     if (!user || !product) return false;
 
     const existingCartItem = await CartItem.findOne({
-      relations: ["product"],
       where: { user, product },
+      relations: ["product"],
     });
 
     if (!existingCartItem) {

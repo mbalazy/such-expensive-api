@@ -2,8 +2,11 @@
   "compilerOptions": {
     "target": "es6",
     "rootDir": "./src",
+    "lib": ["es6", "es2017", "esnext.asynciterable"],
     "module": "commonjs",
     "skipLibCheck": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
     "sourceMap": true,
     "outDir": "./dist",
     "moduleResolution": "node",
@@ -23,7 +26,6 @@
     "resolveJsonModule": true,
     "baseUrl": "."
   },
-  "lib": ["es6", "es2017", "esnext.asynciterable"],
   "exclude": ["node_modules"],
   "include": ["./src/**/*.tsx", "./src/**/*.ts"]
 }
