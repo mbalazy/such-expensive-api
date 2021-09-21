@@ -9,7 +9,6 @@ import {
   RegisterInput,
   UserResponse,
 } from "../utils/inputsAndFields";
-import { getConnection } from "typeorm";
 
 @Resolver()
 export class UserResolver {
@@ -67,6 +66,7 @@ export class UserResolver {
     @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
     const user = await User.findOne({ email: options.email });
+    //TODO add already logged in error req.session.userId === user.id
     if (!user) {
       return {
         errors: [
