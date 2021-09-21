@@ -1,19 +1,18 @@
-import { Resolver, Mutation, Arg, Ctx } from "type-graphql";
+import { Resolver, Mutation, Arg, Ctx, UseMiddleware } from "type-graphql";
 import User from "../entity/User";
 import Product from "../entity/Product";
 import CartItem from "../entity/CartItem";
 import { MyContext } from "src/types";
+import { isAuth } from "../middleware/isAuth";
 
 @Resolver()
 export class CartResolver {
   @Mutation(() => Boolean)
+  @UseMiddleware(isAuth)
   async addToCart(
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    if (!req.session.userId) {
-      return false;
-    }
     //TODO maybe dont fetch/add all user, just add userId
     const user = await User.findOne(req.session.userId);
     const product = await Product.findOne(productId);

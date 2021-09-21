@@ -3,7 +3,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   BaseEntity,
-  JoinColumn,
   ManyToOne,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
@@ -21,7 +20,6 @@ class CartItem extends BaseEntity {
   quantity: number;
 
   @ManyToOne(() => Product, { cascade: true })
-  @JoinColumn()
   @Field(() => Product)
   product: Product;
 
