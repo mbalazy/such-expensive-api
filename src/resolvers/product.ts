@@ -34,10 +34,9 @@ export class ProductResolver {
   ): Promise<Product | null> {
     const userId = req?.session?.userId;
     const user = await User.findOne({ id: userId });
-    if (!userId) {
+    if (!user) {
       throw new Error("that user dont exist");
     }
-
     const product = await Product.create({
       ...options,
       user,
@@ -55,7 +54,8 @@ export class ProductResolver {
   }
 
   @Query(() => [Product])
-  async fetchAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
+  async getAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
+    //TODO? dont fetch if not logged in
     return await Product.find({
       where: { user: req.session.userId },
       relations: ["user"],

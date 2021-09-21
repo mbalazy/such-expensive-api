@@ -8,13 +8,14 @@ import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
 import { UserResolver } from "./resolvers/user";
 import { ProductResolver } from "./resolvers/product";
+import { CartResolver } from "./resolvers/cart";
 import cors from "cors";
 
 createConnection()
   .then(async () => {
     console.log("connected to db");
     const schema = await buildSchema({
-      resolvers: [UserResolver, ProductResolver],
+      resolvers: [UserResolver, ProductResolver, CartResolver],
       validate: false,
     });
 
