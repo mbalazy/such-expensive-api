@@ -9,6 +9,7 @@ import {
   RegisterInput,
   UserResponse,
 } from "../utils/inputsAndFields";
+import { getConnection } from "typeorm";
 
 @Resolver()
 export class UserResolver {
@@ -32,27 +33,40 @@ export class UserResolver {
     options: RegisterInput,
     @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
-    const existingUser = await User.findOne({ email: options.email });
-    if (existingUser)
-      return {
-        errors: [
-          { field: "email", message: "User with this email already exist" },
-        ],
-      };
     //TODO name >3 chars, pass >6 chars, valid email
+    try {
+      const hashedPassword = await argon2.hash(options.password);
+      const result = await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(User)
+        .values({
+          name: options.name,
+          password: hashedPassword,
+          email: options.email,
+        })
+        .returning("*")
+        .execute();
 
-    const hashedPassword = await argon2.hash(options.password);
-    const user = User.create({
-      name: options.name,
-      password: hashedPassword,
-      email: options.email,
-    });
+      const user = result.raw[0];
 
-    await user.save();
-    req.session.userId = user.id;
-    return {
-      user,
-    };
+      req.session.userId = user.id;
+      return {
+        user,
+      };
+    } catch (err: any) {
+      return err?.detail?.includes("already exist")
+        ? {
+            errors: [
+              { field: "email", message: "User with this email already exist" },
+            ],
+          }
+        : {
+            errors: [
+              { field: "unknow", message: "Error while creating new account" },
+            ],
+          };
+    }
   }
 
   @Mutation(() => UserResponse)
