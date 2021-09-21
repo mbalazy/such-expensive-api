@@ -36,20 +36,11 @@ export class UserResolver {
     //TODO name >3 chars, pass >6 chars, valid email
     try {
       const hashedPassword = await argon2.hash(options.password);
-      const result = await getConnection()
-        .createQueryBuilder()
-        .insert()
-        .into(User)
-        .values({
-          name: options.name,
-          password: hashedPassword,
-          email: options.email,
-        })
-        .returning("*")
-        .execute();
-
-      const user = result.raw[0];
-
+      const user = await User.create({
+        name: options.name,
+        password: hashedPassword,
+        email: options.email,
+      }).save();
       req.session.userId = user.id;
       return {
         user,
@@ -63,7 +54,7 @@ export class UserResolver {
           }
         : {
             errors: [
-              { field: "unknow", message: "Error while creating new account" },
+              { field: "email", message: "Error while creating new account" },
             ],
           };
     }

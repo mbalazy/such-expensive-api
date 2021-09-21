@@ -29,8 +29,9 @@ export class ProductResolver {
     options: ProductInput,
     @Ctx() { req }: MyContext
   ): Promise<Product | null> {
-    const userId = req.session.userId;
+    const userId = req?.session?.userId;
     if (!userId) return null;
+
     const user = await User.findOne({ id: userId });
     if (!user) return null;
 
