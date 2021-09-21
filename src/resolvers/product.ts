@@ -1,6 +1,15 @@
-import { Resolver, Mutation, Arg, InputType, Field, Query } from "type-graphql";
+import {
+  Resolver,
+  Mutation,
+  Arg,
+  InputType,
+  Field,
+  Query,
+  Ctx,
+} from "type-graphql";
 import User from "../entity/User";
 import Product from "../entity/Product";
+import { MyContext } from "src/types";
 
 @InputType()
 export class ProductInput {
@@ -10,8 +19,6 @@ export class ProductInput {
   description: string;
   @Field()
   price: number;
-  @Field()
-  userId: number;
 }
 
 @Resolver()
@@ -19,9 +26,12 @@ export class ProductResolver {
   @Mutation(() => Product, { nullable: true })
   async addProduct(
     @Arg("options", () => ProductInput)
-    options: ProductInput
+    options: ProductInput,
+    @Ctx() { req }: MyContext
   ): Promise<Product | null> {
-    const user = await User.findOne({ id: options.userId });
+    const userId = req.session.userId;
+    if (!userId) return null;
+    const user = await User.findOne({ id: userId });
     if (!user) return null;
 
     const product = Product.create({
@@ -38,13 +48,16 @@ export class ProductResolver {
   @Mutation(() => Boolean)
   async deleteProduct(@Arg("productId") productId: number) {
     //TODO add authorization, only product owner cau do it
-    return Product.findOne(productId)
+    return await Product.delete(productId)
       .then(() => true)
       .catch(() => false);
   }
 
   @Query(() => [Product])
-  async fetchAllProducts(): Promise<Product[]> {
-    return await Product.find({ relations: ["user"] });
+  async fetchAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
+    return await Product.find({
+      where: { user: req.session.userId },
+      relations: ["user"],
+    });
   }
 }

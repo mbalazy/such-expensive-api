@@ -1,4 +1,4 @@
-import User from "src/entity/User";
+import User from "../entity/User";
 import { Field, InputType, ObjectType } from "type-graphql";
 
 @InputType()

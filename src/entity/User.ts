@@ -29,11 +29,16 @@ class User extends BaseEntity {
   @Column()
   password: string;
 
-  @OneToMany(() => Product, (product) => product.user, { nullable: true })
+  @OneToMany(() => Product, (product) => product.user, {
+    nullable: true,
+    cascade: true,
+  })
   @Field(() => [Product], { nullable: true })
   products: Product[];
 
-  @OneToMany(() => CartItem, (cartItem) => cartItem.user, { eager: true })
+  @OneToMany(() => CartItem, (cartItem) => cartItem.user, {
+    cascade: true,
+  })
   @Field(() => [CartItem], { nullable: true })
   cartItems: CartItem[];
 

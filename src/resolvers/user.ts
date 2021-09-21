@@ -8,7 +8,7 @@ import {
   LoginInput,
   RegisterInput,
   UserResponse,
-} from "src/utils/inputsAndFields";
+} from "../utils/inputsAndFields";
 
 @Resolver()
 export class UserResolver {
@@ -19,8 +19,11 @@ export class UserResolver {
     if (!userId) {
       return null;
     }
-    const user = await User.findOne(userId);
-    return user;
+
+    return await User.findOne({
+      where: { id: userId },
+      relations: ["products"],
+    });
   }
 
   @Mutation(() => UserResponse, { nullable: true })
@@ -36,7 +39,7 @@ export class UserResolver {
           { field: "email", message: "User with this email already exist" },
         ],
       };
-    //TODO name >3 chars, pass >6 chars valid email
+    //TODO name >3 chars, pass >6 chars, valid email
 
     const hashedPassword = await argon2.hash(options.password);
     const user = User.create({
@@ -108,6 +111,7 @@ export class UserResolver {
     if (!req.session.userId) {
       return false;
     }
+    //TODO maybe dont fetch/add all user, just add userId
     const user = await User.findOne(req.session.userId);
     const product = await Product.findOne(productId);
     //TODO better error handling
