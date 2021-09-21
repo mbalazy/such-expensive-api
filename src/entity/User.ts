@@ -33,13 +33,11 @@ class User extends BaseEntity {
     nullable: true,
     cascade: true,
   })
-  @Field(() => [Product], { nullable: true })
   products: Product[];
 
   @OneToMany(() => CartItem, (cartItem) => cartItem.user, {
     cascade: true,
   })
-  @Field(() => [CartItem], { nullable: true })
   cartItems: CartItem[];
 
   @Column("text", { nullable: true })

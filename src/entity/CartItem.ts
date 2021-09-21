@@ -24,7 +24,6 @@ class CartItem extends BaseEntity {
   product: Product;
 
   @ManyToOne(() => User, (user) => user.cartItems)
-  @Field(() => User)
   user: User;
 }
 

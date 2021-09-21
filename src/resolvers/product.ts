@@ -25,6 +25,15 @@ export class ProductInput {
 
 @Resolver()
 export class ProductResolver {
+  @Query(() => [Product])
+  async getAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
+    //TODO? dont fetch if not logged in
+    return await Product.find({
+      where: { user: req.session.userId },
+      relations: ["user"],
+    });
+  }
+
   @Mutation(() => Product, { nullable: true })
   @UseMiddleware(isAuth)
   async addProduct(
@@ -51,14 +60,5 @@ export class ProductResolver {
     return await Product.delete(productId)
       .then(() => true)
       .catch(() => false);
-  }
-
-  @Query(() => [Product])
-  async getAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
-    //TODO? dont fetch if not logged in
-    return await Product.find({
-      where: { user: req.session.userId },
-      relations: ["user"],
-    });
   }
 }

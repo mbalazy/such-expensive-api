@@ -1,29 +1,20 @@
-import { Resolver, Query, Mutation, Arg, Ctx } from "type-graphql";
+import { Resolver, Query, Mutation, Arg, Ctx, UseMiddleware } from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
-import Product from "../entity/Product";
-import CartItem from "../entity/CartItem";
-import { MyContext } from "src/types";
+import { MyContext } from "../types";
 import {
   LoginInput,
   RegisterInput,
   UserResponse,
 } from "../utils/inputsAndFields";
+import { isAuth } from "../middleware/isAuth";
 
 @Resolver()
 export class UserResolver {
   @Query(() => User, { nullable: true })
+  @UseMiddleware(isAuth)
   async me(@Ctx() { req }: MyContext) {
-    const userId = req.session.userId;
-    // no userid on session? not logged
-    if (!userId) {
-      return null;
-    }
-
-    return await User.findOne({
-      where: { id: userId },
-      relations: ["products"],
-    });
+    return await User.findOne({ where: { id: req.session.userId } });
   }
 
   @Mutation(() => UserResponse, { nullable: true })
