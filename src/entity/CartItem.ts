@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryColumn,
 } from "typeorm";
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 import Product from "./Product";
 import User from "./User";
 
@@ -19,7 +19,7 @@ class CartItem extends BaseEntity {
   productId: number;
 
   @Column({ type: "int" })
-  @Field()
+  @Field(() => Int)
   quantity: number;
 
   @ManyToOne(() => Product, { cascade: true })

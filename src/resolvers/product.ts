@@ -26,8 +26,8 @@ export class ProductInput {
 @Resolver()
 export class ProductResolver {
   @Query(() => [Product])
+  @UseMiddleware(isAuth)
   async getAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
-    //TODO? dont fetch if not logged in
     return await Product.find({
       where: { user: req.session.userId },
       relations: ["user"],
