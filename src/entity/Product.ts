@@ -29,7 +29,7 @@ class Product extends BaseEntity {
   @Field()
   price: number;
 
-  @ManyToOne(() => User, (user) => user.products)
+  @ManyToOne(() => User, { cascade: true })
   @Field(() => User)
   user: User;
 

@@ -6,7 +6,6 @@ import {
   Ctx,
   UseMiddleware,
 } from "type-graphql";
-import User from "../entity/User";
 import Product from "../entity/Product";
 import CartItem from "../entity/CartItem";
 import { MyContext } from "src/types";
@@ -20,20 +19,19 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    //TODO maybe dont fetch/add all user, just add userId
-    const user = await User.findOne(req.session.userId);
+    //TODO dry -> same in removeFromCart
     const product = await Product.findOne(productId);
-    //TODO better error handling
-    if (!user || !product) return false;
+    if (!product) return false;
 
+    const userId = req.session.userId;
     const existingCartItem = await CartItem.findOne({
-      where: { user, product },
+      where: { userId, product },
       relations: ["product"],
     });
 
     if (!existingCartItem) {
       CartItem.create({
-        user,
+        userId,
         product,
         quantity: 1,
       }).save();
@@ -51,12 +49,12 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    const user = await User.findOne(req.session.userId);
     const product = await Product.findOne(productId);
-    if (!user || !product) return false;
+    if (!product) return false;
 
+    const userId = req.session.userId;
     const existingCartItem = await CartItem.findOne({
-      where: { user, product },
+      where: { userId, product },
       relations: ["product"],
     });
 

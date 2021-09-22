@@ -5,11 +5,8 @@ import {
   UpdateDateColumn,
   CreateDateColumn,
   BaseEntity,
-  OneToMany,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
-import Product from "./Product";
-import CartItem from "./CartItem";
 
 @Entity()
 @ObjectType()
@@ -28,17 +25,6 @@ class User extends BaseEntity {
 
   @Column()
   password: string;
-
-  @OneToMany(() => Product, (product) => product.user, {
-    nullable: true,
-    cascade: true,
-  })
-  products: Product[];
-
-  @OneToMany(() => CartItem, (cartItem) => cartItem.user, {
-    cascade: true,
-  })
-  cartItems: CartItem[];
 
   @Column("text", { nullable: true })
   @Field()

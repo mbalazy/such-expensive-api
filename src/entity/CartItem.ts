@@ -1,9 +1,9 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   BaseEntity,
   ManyToOne,
+  PrimaryColumn,
 } from "typeorm";
 import { Field, ObjectType } from "type-graphql";
 import Product from "./Product";
@@ -12,8 +12,11 @@ import User from "./User";
 @Entity()
 @ObjectType()
 class CartItem extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  cartItemId: number;
+  @PrimaryColumn()
+  userId: number;
+
+  @PrimaryColumn()
+  productId: number;
 
   @Column({ type: "int" })
   @Field()
@@ -23,7 +26,7 @@ class CartItem extends BaseEntity {
   @Field(() => Product)
   product: Product;
 
-  @ManyToOne(() => User, (user) => user.cartItems)
+  @ManyToOne(() => User, { cascade: true })
   user: User;
 }
 
