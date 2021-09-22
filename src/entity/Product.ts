@@ -29,8 +29,10 @@ class Product extends BaseEntity {
   @Field()
   price: number;
 
+  @Column()
+  userId: number
+
   @ManyToOne(() => User, { cascade: true })
-  @Field(() => User)
   user: User;
 
   @CreateDateColumn()

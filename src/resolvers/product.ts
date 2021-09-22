@@ -8,7 +8,6 @@ import {
   Ctx,
   UseMiddleware,
 } from "type-graphql";
-import User from "../entity/User";
 import Product from "../entity/Product";
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
@@ -28,30 +27,20 @@ export class ProductResolver {
   @Query(() => [Product])
   @UseMiddleware(isAuth)
   async getAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
-    return await Product.find({
-      where: { user: req.session.userId },
-      relations: ["user"],
-    });
+    return await Product.find({ where: { user: req.session.userId } });
   }
 
-  @Mutation(() => Product, { nullable: true })
+  @Mutation(() => Product)
   @UseMiddleware(isAuth)
   async addProduct(
     @Arg("options", () => ProductInput)
     options: ProductInput,
     @Ctx() { req }: MyContext
   ): Promise<Product | null> {
-    const userId = req?.session?.userId;
-    const user = await User.findOne({ id: userId });
-    if (!user) {
-      throw new Error("that user dont exist");
-    }
-    const product = await Product.create({
+    return Product.create({
       ...options,
-      user,
+      userId: req.session.userId,
     }).save();
-
-    return product;
   }
 
   @Mutation(() => Boolean)
