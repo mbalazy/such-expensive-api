@@ -10,6 +10,7 @@ import Product from "../entity/Product";
 import CartItem from "../entity/CartItem";
 import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
+import { CartResponse } from "src/utils/inputsAndFields";
 
 @Resolver()
 export class CartResolver {
@@ -24,6 +25,7 @@ export class CartResolver {
     if (!product) return false;
 
     const userId = req.session.userId;
+
     const existingCartItem = await CartItem.findOne({
       where: { userId, product },
       relations: ["product"],
@@ -31,7 +33,6 @@ export class CartResolver {
 
     if (!existingCartItem) {
       CartItem.create({
-        userId,
         product,
         quantity: 1,
       }).save();
@@ -70,12 +71,15 @@ export class CartResolver {
     return true;
   }
 
-  @Query(() => [CartItem])
+  @Query(() => CartResponse)
   @UseMiddleware(isAuth)
-  async getCartItems(@Ctx() { req }: MyContext): Promise<CartItem[]> {
-    return CartItem.find({
-      where: { user: req.session.userId },
-      relations: ["product"],
-    });
+  async getCart(@Ctx() { req }: MyContext): Promise<CartResponse> {
+    return {
+      total: 999,
+      cartItems: await CartItem.find({
+        where: { user: req.session.userId },
+        relations: ["product"],
+      }),
+    };
   }
 }

@@ -7,27 +7,27 @@ import {
 } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
 import Product from "./Product";
-import User from "./User";
+import Cart from "./Cart";
 
 @Entity()
 @ObjectType()
 class CartItem extends BaseEntity {
   @PrimaryColumn()
-  userId: number;
+  cartId: number;
 
   @PrimaryColumn()
   productId: number;
 
-  @Column({ type: "int" })
-  @Field(() => Int)
-  quantity: number;
+  @ManyToOne(() => Cart, { cascade: true })
+  cart: Cart;
 
   @ManyToOne(() => Product, { cascade: true })
   @Field(() => Product)
   product: Product;
 
-  @ManyToOne(() => User, { cascade: true })
-  user: User;
+  @Column({ type: "int" })
+  @Field(() => Int)
+  quantity: number;
 }
 
 export default CartItem;
