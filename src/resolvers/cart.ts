@@ -28,17 +28,15 @@ export class CartResolver {
 
     const userId = req.session.userId;
 
-    const cart = await Cart.findOne({ where: { userId } });
-    if (!cart) await Cart.create({ userId }).save();
+    let cart = await Cart.findOne({ where: { userId } });
+    if (!cart) {
+      cart = await Cart.create({ userId }).save();
+    }
 
-    const cartItems = await CartItem.find({
-      where: { cart },
+    const cartItem = await CartItem.findOne({
+      where: { cart, product },
       relations: ["product"],
     });
-
-    const cartItem = cartItems.find(
-      (cartItem) => cartItem.productId === productId
-    );
 
     if (!cartItem) {
       await CartItem.create({
@@ -51,7 +49,7 @@ export class CartResolver {
       await cartItem.save();
     }
 
-    await updateCartTotal(cartItems, cart);
+    await updateCartTotal(cart);
 
     return true;
   }
@@ -70,14 +68,10 @@ export class CartResolver {
     const cart = await Cart.findOne({ where: { userId } });
     if (!cart) return false;
 
-    const cartItems = await CartItem.find({
-      where: { cart },
+    const cartItem = await CartItem.findOne({
+      where: { cart, product },
       relations: ["product"],
     });
-
-    const cartItem = cartItems.find(
-      (cartItem) => cartItem.productId === productId
-    );
 
     if (!cartItem) {
       return false;
@@ -88,7 +82,7 @@ export class CartResolver {
       cartItem.remove();
     }
 
-    await updateCartTotal(cartItems, cart);
+    await updateCartTotal(cart);
 
     return true;
   }
@@ -102,7 +96,7 @@ export class CartResolver {
       relations: ["product"],
     });
 
-    const total = await updateCartTotal(cartItems, cart);
+    const total = await updateCartTotal(cart);
 
     return {
       cartItems,
