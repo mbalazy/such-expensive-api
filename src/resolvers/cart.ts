@@ -12,6 +12,7 @@ import { MyContext } from "src/types";
 import { isAuth } from "../middleware/isAuth";
 import { CartResponse } from "../utils/inputsAndFields";
 import Cart from "../entity/Cart";
+import { updateCartTotal } from "../utils/updateCartTotal";
 
 @Resolver()
 export class CartResolver {
@@ -50,14 +51,7 @@ export class CartResolver {
       await cartItem.save();
     }
 
-    //TODO? move to field resolver
-    const total = cartItems.reduce((acc, val) => {
-      acc += val.product.price * val.quantity;
-      return acc;
-    }, 0);
-
-    cart!.total = total;
-    await cart!.save();
+    await updateCartTotal(cartItems, cart);
 
     return true;
   }
@@ -94,13 +88,7 @@ export class CartResolver {
       cartItem.remove();
     }
 
-    const total = cartItems.reduce((acc, val) => {
-      acc += val.product.price * val.quantity;
-      return acc;
-    }, 0);
-
-    cart!.total = total;
-    await cart!.save();
+    await updateCartTotal(cartItems, cart);
 
     return true;
   }
@@ -114,13 +102,7 @@ export class CartResolver {
       relations: ["product"],
     });
 
-    const total = cartItems.reduce((acc, val) => {
-      acc += val.product.price * val.quantity;
-      return acc;
-    }, 0);
-
-    cart!.total = total;
-    await cart!.save();
+    const total = await updateCartTotal(cartItems, cart);
 
     return {
       cartItems,
