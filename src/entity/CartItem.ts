@@ -1,10 +1,4 @@
-import {
-  Entity,
-  Column,
-  BaseEntity,
-  ManyToOne,
-  PrimaryColumn,
-} from "typeorm";
+import { Entity, Column, BaseEntity, ManyToOne, PrimaryColumn } from "typeorm";
 import { Field, Int, ObjectType } from "type-graphql";
 import Product from "./Product";
 import Cart from "./Cart";
@@ -21,7 +15,11 @@ class CartItem extends BaseEntity {
   @ManyToOne(() => Cart, { cascade: true })
   cart: Cart;
 
-  @ManyToOne(() => Product, { cascade: true })
+  @ManyToOne(() => Product, {
+    cascade: true,
+    onDelete: "CASCADE",
+    onUpdate: "CASCADE",
+  })
   @Field(() => Product)
   product: Product;
 
