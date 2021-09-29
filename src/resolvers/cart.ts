@@ -6,13 +6,12 @@ import {
   Ctx,
   UseMiddleware,
 } from "type-graphql";
-import Product from "../entity/Product";
 import CartItem from "../entity/CartItem";
-import { MyContext } from "src/types";
+import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import { CartResponse } from "../utils/inputsAndFields";
-import Cart from "../entity/Cart";
 import { updateCartTotal } from "../utils/updateCartTotal";
+import { getCartData } from "../utils/getCartData";
 
 @Resolver()
 export class CartResolver {
@@ -22,18 +21,8 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    //TODO not dry -> same in whole resolver
-    const product = await Product.findOne(productId);
-    if (!product) return false;
-
-    const userId = req.session.userId;
-
-    const cart = await Cart.findOne({ where: { userId } });
-
-    const cartItem = await CartItem.findOne({
-      where: { cart, product },
-      relations: ["product"],
-    });
+    const { cart, product, cartItem } =
+      (await getCartData(productId, req.session.userId)) || {};
 
     if (!cartItem) {
       await CartItem.create({
@@ -57,18 +46,8 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    const product = await Product.findOne(productId);
-    if (!product) return false;
-
-    const userId = req.session.userId;
-
-    const cart = await Cart.findOne({ where: { userId } });
-    if (!cart) return false;
-
-    const cartItem = await CartItem.findOne({
-      where: { cart, product },
-      relations: ["product"],
-    });
+    const { cart, cartItem } =
+      (await getCartData(productId, req.session.userId)) || {};
 
     if (!cartItem) {
       return false;
@@ -87,14 +66,9 @@ export class CartResolver {
   @Query(() => CartResponse)
   @UseMiddleware(isAuth)
   async getCart(@Ctx() { req }: MyContext): Promise<CartResponse> {
-    const cart = await Cart.findOne({ where: { userId: req.session.userId } });
-    const cartItems = await CartItem.find({
-      where: { cart },
-      relations: ["product"],
-    });
-
+    const { cart, cartItems } =
+      (await getCartData(undefined, req.session.userId)) || {};
     const total = await updateCartTotal(cart);
-
     return {
       cartItems,
       total,
