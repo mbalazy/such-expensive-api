@@ -28,10 +28,7 @@ export class CartResolver {
 
     const userId = req.session.userId;
 
-    let cart = await Cart.findOne({ where: { userId } });
-    if (!cart) {
-      cart = await Cart.create({ userId }).save();
-    }
+    const cart = await Cart.findOne({ where: { userId } });
 
     const cartItem = await CartItem.findOne({
       where: { cart, product },

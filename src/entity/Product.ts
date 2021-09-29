@@ -30,9 +30,9 @@ class Product extends BaseEntity {
   price: number;
 
   @Column()
-  userId: number
+  userId: number;
 
-  @ManyToOne(() => User, { cascade: true })
+  @ManyToOne(() => User, { cascade: true, onDelete: "CASCADE" })
   user: User;
 
   @CreateDateColumn()

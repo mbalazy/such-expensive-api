@@ -1,4 +1,11 @@
-import { Resolver, Query, Mutation, Arg, Ctx, UseMiddleware } from "type-graphql";
+import {
+  Resolver,
+  Query,
+  Mutation,
+  Arg,
+  Ctx,
+  UseMiddleware,
+} from "type-graphql";
 import argon2 from "argon2";
 import User from "../entity/User";
 import { MyContext } from "../types";
@@ -8,6 +15,7 @@ import {
   UserResponse,
 } from "../utils/inputsAndFields";
 import { isAuth } from "../middleware/isAuth";
+import Cart from "../entity/Cart";
 
 @Resolver()
 export class UserResolver {
@@ -26,11 +34,13 @@ export class UserResolver {
     //TODO name >3 chars, pass >6 chars, valid email
     try {
       const hashedPassword = await argon2.hash(options.password);
+      //TODO create User and Cart in one query 
       const user = await User.create({
         name: options.name,
         password: hashedPassword,
         email: options.email,
       }).save();
+      await Cart.create({ userId: user.id }).save();
       req.session.userId = user.id;
       return {
         user,
