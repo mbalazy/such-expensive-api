@@ -16,6 +16,7 @@ class CartItem extends BaseEntity {
   cart: Cart;
 
   @ManyToOne(() => Product, {
+    eager: true,
     cascade: true,
     onDelete: "CASCADE",
     onUpdate: "CASCADE",

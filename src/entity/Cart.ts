@@ -20,7 +20,7 @@ class Cart extends BaseEntity {
   userId: number;
 
   @Field(() => [CartItem], { nullable: true })
-  @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { eager: true })
   cartItems?: CartItem[];
 
   @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })

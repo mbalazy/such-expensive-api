@@ -20,12 +20,14 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    let { cart, product, cartItem } =
-      (await getCartData(productId, req.session.userId)) || {};
+    const { cart, product, cartItem } = await getCartData(
+      productId,
+      req.session.userId
+    );
 
     if (!cartItem) {
-      cartItem = await CartItem.create({
-        cart,
+      await CartItem.create({
+        cartId: cart?.id,
         product,
         quantity: 1,
       }).save();
