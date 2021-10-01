@@ -9,9 +9,9 @@ import {
 import CartItem from "../entity/CartItem";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
-import { CartResponse } from "../utils/inputsAndFields";
 import { updateCartTotal } from "../utils/updateCartTotal";
 import { getCartData } from "../utils/getCartData";
+import Cart from "../entity/Cart";
 
 @Resolver()
 export class CartResolver {
@@ -21,11 +21,11 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    const { cart, product, cartItem } =
+    let { cart, product, cartItem } =
       (await getCartData(productId, req.session.userId)) || {};
 
     if (!cartItem) {
-      await CartItem.create({
+      cartItem = await CartItem.create({
         cart,
         product,
         quantity: 1,
@@ -35,6 +35,7 @@ export class CartResolver {
       await cartItem.save();
     }
 
+    cart?.cartItems?.push(cartItem!)
     await updateCartTotal(cart);
 
     return true;
@@ -63,15 +64,12 @@ export class CartResolver {
     return true;
   }
 
-  @Query(() => CartResponse)
+  @Query(() => Cart, { nullable: true })
   @UseMiddleware(isAuth)
-  async getCart(@Ctx() { req }: MyContext): Promise<CartResponse> {
-    const { cart, cartItems } =
-      (await getCartData(undefined, req.session.userId)) || {};
-    const total = await updateCartTotal(cart);
-    return {
-      cartItems,
-      total,
-    };
+  async getCart(@Ctx() { req }: MyContext): Promise<Cart | undefined> {
+    const { cart } = (await getCartData(undefined, req.session.userId)) || {};
+    console.log(cart);
+    await updateCartTotal(cart);
+    return cart;
   }
 }

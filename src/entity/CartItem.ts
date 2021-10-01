@@ -12,7 +12,7 @@ class CartItem extends BaseEntity {
   @PrimaryColumn()
   productId: number;
 
-  @ManyToOne(() => Cart, { cascade: true })
+  @ManyToOne(() => Cart, { cascade: true, onDelete: "CASCADE" })
   cart: Cart;
 
   @ManyToOne(() => Product, {

@@ -14,7 +14,7 @@ export const getCartData = async (
   userId?: number
 ): Promise<CartData | null> => {
   const product = await Product.findOne(productId);
-  const cart = await Cart.findOne({ where: { userId } });
+  const cart = await Cart.findOne({ where: { userId }, relations: ["cartItems"] });
   const cartItem = await CartItem.findOne({
     where: { cart, product },
     relations: ["product"],

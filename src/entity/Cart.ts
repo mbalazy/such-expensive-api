@@ -4,9 +4,11 @@ import {
   BaseEntity,
   OneToOne,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from "typeorm";
-import { ObjectType } from "type-graphql";
+import { Field, ObjectType } from "type-graphql";
 import User from "./User";
+import CartItem from "./CartItem";
 
 @Entity()
 @ObjectType()
@@ -17,6 +19,11 @@ class Cart extends BaseEntity {
   @Column()
   userId: number;
 
+  @Field(() => [CartItem], { nullable: true })
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
+  cartItems?: CartItem[];
+
+  @Field()
   @Column({ type: "int", default: 0 })
   total: number;
 

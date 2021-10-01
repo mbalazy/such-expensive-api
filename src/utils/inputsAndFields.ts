@@ -1,6 +1,5 @@
 import User from "../entity/User";
 import { Field, InputType, ObjectType } from "type-graphql";
-import CartItem from "../entity/CartItem";
 
 @InputType()
 export class LoginInput {
@@ -31,13 +30,4 @@ export class UserResponse {
 
   @Field(() => User, { nullable: true })
   user?: User;
-}
-
-@ObjectType()
-export class CartResponse {
-  @Field(() => [CartItem], { nullable: true })
-  cartItems?: CartItem[];
-
-  @Field()
-  total: number;
 }
