@@ -31,7 +31,7 @@ export class CartResolver {
         product,
         quantity: 1,
       }).save();
-      cart.cartItems?.unshift(cartItem);
+      cart.cartItems.unshift(cartItem);
     } else if (cartItem) {
       cartItem.quantity++;
       await cartItem.save();
@@ -57,7 +57,7 @@ export class CartResolver {
       cartItem.save();
     } else {
       cartItem.remove();
-      cart.cartItems = cart?.cartItems?.filter(
+      cart.cartItems = cart.cartItems.filter(
         (item) => item.productId !== cartItem?.productId
       );
     }

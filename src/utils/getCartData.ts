@@ -16,7 +16,7 @@ export const getCartData = async (
   const cart = await Cart.findOne({ where: { userId } }) || new Cart();
 
   const cartItem = product
-    ? cart?.cartItems?.find((cartItem) => cartItem.product.id === productId)
+    ? cart.cartItems.find((cartItem) => cartItem.product.id === productId)
     : undefined;
 
   return { cartItem, cart, product };
