@@ -23,10 +23,6 @@ class Cart extends BaseEntity {
   @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
   cartItems?: CartItem[];
 
-  @Field()
-  @Column({ type: "int", default: 0 })
-  total: number;
-
   @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
   user: User;
 }

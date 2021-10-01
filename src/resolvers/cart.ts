@@ -9,7 +9,6 @@ import {
 import CartItem from "../entity/CartItem";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
-import { updateCartTotal } from "../utils/updateCartTotal";
 import { getCartData } from "../utils/getCartData";
 import Cart from "../entity/Cart";
 
@@ -35,9 +34,6 @@ export class CartResolver {
       await cartItem.save();
     }
 
-    cart?.cartItems?.push(cartItem!)
-    await updateCartTotal(cart);
-
     return true;
   }
 
@@ -47,7 +43,7 @@ export class CartResolver {
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
   ): Promise<boolean> {
-    const { cart, cartItem } =
+    const { cartItem } =
       (await getCartData(productId, req.session.userId)) || {};
 
     if (!cartItem) {
@@ -59,7 +55,6 @@ export class CartResolver {
       cartItem.remove();
     }
 
-    await updateCartTotal(cart);
 
     return true;
   }
@@ -68,8 +63,8 @@ export class CartResolver {
   @UseMiddleware(isAuth)
   async getCart(@Ctx() { req }: MyContext): Promise<Cart | undefined> {
     const { cart } = (await getCartData(undefined, req.session.userId)) || {};
+    console.log('getCart')
     console.log(cart);
-    await updateCartTotal(cart);
     return cart;
   }
 }
