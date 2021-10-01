@@ -14,59 +14,61 @@ import Cart from "../entity/Cart";
 
 @Resolver()
 export class CartResolver {
-  @Mutation(() => Boolean)
+  @Mutation(() => Cart, { nullable: true })
   @UseMiddleware(isAuth)
   async addToCart(
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
-  ): Promise<boolean> {
-    const { cart, product, cartItem } = await getCartData(
+  ): Promise<Cart | undefined> {
+    let { cart, product, cartItem } = await getCartData(
       productId,
       req.session.userId
     );
 
-    if (!cartItem) {
-      await CartItem.create({
-        cartId: cart?.id,
+    if (!cartItem && product) {
+      cartItem = await CartItem.create({
+        cartId: cart.id,
         product,
         quantity: 1,
       }).save();
-    } else {
+      cart.cartItems?.unshift(cartItem);
+    } else if (cartItem) {
       cartItem.quantity++;
       await cartItem.save();
+    } else {
+      return cart;
     }
 
-    return true;
+    return cart;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Cart)
   @UseMiddleware(isAuth)
   async removeFromCart(
     @Arg("productId") productId: number,
     @Ctx() { req }: MyContext
-  ): Promise<boolean> {
-    const { cartItem } =
-      (await getCartData(productId, req.session.userId)) || {};
+  ): Promise<Cart | undefined> {
+    let { cartItem, cart } = await getCartData(productId, req.session.userId);
 
     if (!cartItem) {
-      return false;
+      return cart;
     } else if (cartItem.quantity >= 2) {
       cartItem.quantity--;
       cartItem.save();
     } else {
       cartItem.remove();
+      cart.cartItems = cart?.cartItems?.filter(
+        (item) => item.productId !== cartItem?.productId
+      );
     }
 
-
-    return true;
+    return cart;
   }
 
   @Query(() => Cart, { nullable: true })
   @UseMiddleware(isAuth)
   async getCart(@Ctx() { req }: MyContext): Promise<Cart | undefined> {
-    const { cart } = (await getCartData(undefined, req.session.userId)) || {};
-    console.log('getCart')
-    console.log(cart);
+    const { cart } = await getCartData(undefined, req.session.userId);
     return cart;
   }
 }
