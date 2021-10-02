@@ -6,7 +6,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
 } from "typeorm";
-import { Field, ObjectType } from "type-graphql";
+import { Field, ID, ObjectType } from "type-graphql";
 import User from "./User";
 import CartItem from "./CartItem";
 
@@ -14,7 +14,7 @@ import CartItem from "./CartItem";
 @ObjectType()
 class Cart extends BaseEntity {
   @PrimaryGeneratedColumn()
-  @Field()
+  @Field(() => ID)
   id: number;
 
   @Column()

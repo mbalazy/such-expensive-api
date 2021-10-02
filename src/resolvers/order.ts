@@ -3,6 +3,7 @@ import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import Cart from "../entity/Cart";
 import { OrderResponse } from "../utils/inputsAndFields";
+import Order from "../entity/Order";
 
 @Resolver()
 export class OrderResolver {
@@ -15,9 +16,10 @@ export class OrderResolver {
     try {
       const userId = req.session.userId;
       const cart = await Cart.findOneOrFail({ where: { id: cartId, userId } });
+      await Order.create({ cartId: cart.id, userId }).save();
 
       return {
-        orderedItems: cart.cartItems.map(({ product, quantity }) => ({
+        orderDetails: cart.cartItems.map(({ product, quantity }) => ({
           product,
           quantity,
           sellerAdres: product.user.adress,
@@ -25,6 +27,7 @@ export class OrderResolver {
         })),
       };
     } catch (err) {
+      console.error(err);
       return {
         errors: [{ field: "cart", message: "This cart does not exist" }],
       };

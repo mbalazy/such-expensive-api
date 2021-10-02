@@ -29,6 +29,10 @@ class Product extends BaseEntity {
   @Field()
   price: number;
 
+  @Column("boolean", { default: false })
+  @Field()
+  sold: boolean;
+
   @Column()
   userId: number;
 

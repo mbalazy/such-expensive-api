@@ -1,11 +1,22 @@
-import { Entity, Column, BaseEntity, ManyToOne, PrimaryColumn } from "typeorm";
-import { Field, Int, ObjectType } from "type-graphql";
+import {
+  Entity,
+  Column,
+  BaseEntity,
+  ManyToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Field, ID, Int, ObjectType } from "type-graphql";
 import Product from "./Product";
 import Cart from "./Cart";
 
 @Entity()
 @ObjectType()
 class CartItem extends BaseEntity {
+  @PrimaryGeneratedColumn()
+  @Field(() => ID)
+  id: number;
+
   @PrimaryColumn()
   cartId: number;
 

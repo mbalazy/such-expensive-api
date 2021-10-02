@@ -34,7 +34,7 @@ export class UserResponse {
 }
 
 @ObjectType()
-class OrderedItem {
+class OrderItemDetail {
   @Field(() => Product)
   product: Product;
   @Field()
@@ -50,6 +50,6 @@ export class OrderResponse {
   @Field(() => [FieldError], { nullable: true })
   errors?: FieldError[];
 
-  @Field(() => [OrderedItem], { nullable: true })
-  orderedItems?: OrderedItem[];
+  @Field(() => [OrderItemDetail], { nullable: true })
+  orderDetails?: OrderItemDetail[];
 }
