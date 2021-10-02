@@ -13,7 +13,9 @@ export const getCartData = async (
   userId?: number
 ): Promise<CartData> => {
   const product = await Product.findOne(productId);
-  const cart = await Cart.findOne({ where: { userId } }) || new Cart();
+  const cart =
+    (await Cart.findOne({ where: { userId } })) ||
+    (await Cart.create({ userId }).save());
 
   const cartItem = product
     ? cart.cartItems.find((cartItem) => cartItem.product.id === productId)
