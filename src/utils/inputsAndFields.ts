@@ -1,5 +1,6 @@
 import User from "../entity/User";
 import { Field, InputType, ObjectType } from "type-graphql";
+import Product from "../entity/Product";
 
 @InputType()
 export class LoginInput {
@@ -30,4 +31,23 @@ export class UserResponse {
 
   @Field(() => User, { nullable: true })
   user?: User;
+}
+
+@ObjectType()
+class OrderedItem {
+  @Field(() => Product)
+  product: Product;
+  @Field(() => String, { nullable: true })
+  sellerAdres: User["adress"];
+  @Field(() => String, { nullable: true })
+  sellerPhone: User["phone"];
+}
+
+@ObjectType()
+export class OrderResponse {
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+
+  @Field(() => [OrderedItem], { nullable: true })
+  orderedItems?: OrderedItem[];
 }

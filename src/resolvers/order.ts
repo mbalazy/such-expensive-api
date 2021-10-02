@@ -2,18 +2,36 @@ import { Resolver, Mutation, Arg, Ctx, UseMiddleware } from "type-graphql";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import Cart from "../entity/Cart";
+import { OrderResponse } from "../utils/inputsAndFields";
 
 @Resolver()
 export class OrderResolver {
-  @Mutation(() => Boolean, { nullable: true })
+  @Mutation(() => OrderResponse)
   @UseMiddleware(isAuth)
   async createOrder(
     @Arg("cartId") cartId: number,
     @Ctx() { req }: MyContext
-  ): Promise<boolean> {
-    const userId = req.session.userId;
-    const cart = await Cart.findOne({ where: { id: cartId, userId } });
-    console.log(cart);
-    return true;
+  ): Promise<OrderResponse> {
+    try {
+      const userId = req.session.userId;
+      const cart = await Cart.findOneOrFail({ where: { id: cartId, userId } });
+
+      const products = cart.cartItems.map((item) => item.product);
+
+      const orderedItems = products.map((product) => {
+        return {
+          product,
+          sellerAdres: product.user.adress,
+          sellerPhone: product.user.phone,
+        };
+      });
+      return {
+        orderedItems,
+      };
+    } catch (err) {
+      return {
+        errors: [{ field: "cart", message: "this cart dont exist" }],
+      };
+    }
   }
 }

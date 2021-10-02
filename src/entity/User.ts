@@ -27,6 +27,10 @@ class User extends BaseEntity {
   password: string;
 
   @Column("text", { nullable: true })
+  phone: string;
+
+  //TODO need to move to own entity with city, post etc.
+  @Column("text", { nullable: true })
   @Field({ nullable: true })
   adress: string;
 
