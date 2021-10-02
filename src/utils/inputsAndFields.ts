@@ -37,6 +37,8 @@ export class UserResponse {
 class OrderedItem {
   @Field(() => Product)
   product: Product;
+  @Field()
+  quantity: number;
   @Field(() => String, { nullable: true })
   sellerAdres: User["adress"];
   @Field(() => String, { nullable: true })

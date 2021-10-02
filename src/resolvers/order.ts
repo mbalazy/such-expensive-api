@@ -17,14 +17,18 @@ export class OrderResolver {
       const cart = await Cart.findOneOrFail({ where: { id: cartId, userId } });
 
       const products = cart.cartItems.map((item) => item.product);
+      const quantities = cart.cartItems.map((item) => item.quantity);
 
-      const orderedItems = products.map((product) => {
-        return {
-          product,
-          sellerAdres: product.user.adress,
-          sellerPhone: product.user.phone,
-        };
-      });
+      const orderedItems: OrderResponse["orderedItems"] = products.map(
+        (product, i) => {
+          return {
+            product,
+            quantity: quantities[i],
+            sellerAdres: product.user.adress,
+            sellerPhone: product.user.phone,
+          };
+        }
+      );
       return {
         orderedItems,
       };
