@@ -92,7 +92,7 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   logout(@Ctx() { req, res }: MyContext) {
-    //check if user is logged
+    //check if user is logged in
     return !req.session.userId
       ? false
       : new Promise((resolve) =>

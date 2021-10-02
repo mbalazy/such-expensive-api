@@ -12,14 +12,12 @@ export const getCartData = async (
   productId?: number,
   userId?: number
 ): Promise<CartData> => {
-  const product = await Product.findOne(productId);
-  const cart =
-    (await Cart.findOne({ where: { userId } })) ||
-    (await Cart.create({ userId }).save());
+  const product = await Product.findOneOrFail(productId);
+  const cart = await Cart.findOneOrFail({ where: { userId } });
 
-  const cartItem = product
-    ? cart.cartItems.find((cartItem) => cartItem.product.id === productId)
-    : undefined;
+  const cartItem = cart.cartItems.find(
+    (cartItem) => cartItem.product.id === productId
+  );
 
   return { cartItem, cart, product };
 };
