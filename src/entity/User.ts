@@ -27,7 +27,7 @@ class User extends BaseEntity {
   password: string;
 
   @Column("text", { nullable: true })
-  @Field()
+  @Field({ nullable: true })
   adress: string;
 
   @CreateDateColumn()

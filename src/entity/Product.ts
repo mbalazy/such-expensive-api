@@ -32,7 +32,8 @@ class Product extends BaseEntity {
   @Column()
   userId: number;
 
-  @ManyToOne(() => User, { cascade: true, onDelete: "CASCADE" })
+  @ManyToOne(() => User, { cascade: true, onDelete: "CASCADE", eager: true })
+  @Field()
   user: User;
 
   @CreateDateColumn()
