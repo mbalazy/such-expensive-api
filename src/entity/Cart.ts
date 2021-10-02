@@ -14,6 +14,7 @@ import CartItem from "./CartItem";
 @ObjectType()
 class Cart extends BaseEntity {
   @PrimaryGeneratedColumn()
+  @Field()
   id: number;
 
   @Column()

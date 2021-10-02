@@ -10,12 +10,13 @@ import { UserResolver } from "./resolvers/user";
 import { ProductResolver } from "./resolvers/product";
 import { CartResolver } from "./resolvers/cart";
 import cors from "cors";
+import { OrderResolver } from "./resolvers/order";
 
 createConnection()
   .then(async () => {
     console.log("connected to db");
     const schema = await buildSchema({
-      resolvers: [UserResolver, ProductResolver, CartResolver],
+      resolvers: [UserResolver, ProductResolver, CartResolver, OrderResolver],
       validate: false,
     });
 
