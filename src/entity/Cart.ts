@@ -5,6 +5,7 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
   OneToMany,
+  JoinColumn,
 } from "typeorm";
 import { Field, ID, ObjectType } from "type-graphql";
 import User from "./User";
@@ -20,12 +21,13 @@ class Cart extends BaseEntity {
   @Column()
   userId: number;
 
+  @OneToOne(() => User, { cascade: true })
+  @JoinColumn()
+  user: User;
+
   @Field(() => [CartItem], { defaultValue: [] })
   @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { eager: true })
   cartItems: CartItem[];
-
-  @OneToOne(() => User, { cascade: true, onDelete: "CASCADE" })
-  user: User;
 }
 
 export default Cart;

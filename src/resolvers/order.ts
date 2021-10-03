@@ -14,16 +14,17 @@ export class OrderResolver {
   ): Promise<boolean> {
     const userId = req.session.userId;
     const cart = await Cart.findOneOrFail({ where: { id: cartId, userId } });
-    await Order.create({ cartId: cart.id, userId }).save();
 
-    // return {
-    //   orderDetails: cart.cartItems.map(({ product, quantity }) => ({
-    //     product,
-    //     quantity,
-    //     sellerAdres: product.user.adress,
-    //     sellerPhone: product.user.phone,
-    //   })),
-    // };
-    return true
+    const orderItems = cart.cartItems.map(({ product, quantity }) => ({
+      product,
+      quantity,
+      sellerAdres: product.user.adress,
+      sellerPhone: product.user.phone,
+    }));
+
+    const order = await Order.create({ userId, orderItems }).save();
+    console.log(order);
+
+    return true;
   }
 }

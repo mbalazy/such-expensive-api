@@ -4,12 +4,10 @@ import {
   BaseEntity,
   PrimaryGeneratedColumn,
   ManyToOne,
-  OneToOne,
   Column,
   CreateDateColumn,
   OneToMany,
 } from "typeorm";
-import Cart from "./Cart";
 import OrderItem from "./OrderItem";
 import User from "./User";
 
@@ -19,13 +17,7 @@ class Order extends BaseEntity {
   @Field(() => ID)
   id: number;
 
-  @Column()
-  cartId: number;
-
-  @OneToOne(() => Cart)
-  cart: Cart;
-
-  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order, { cascade: true })
   @Field(() => [OrderItem])
   orderItems: OrderItem[];
 
