@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Arg, Ctx, UseMiddleware } from "type-graphql";
+import { Resolver, Mutation, Ctx, UseMiddleware } from "type-graphql";
 import { MyContext } from "../types";
 import { isAuth } from "../middleware/isAuth";
 import Cart from "../entity/Cart";
@@ -6,14 +6,13 @@ import Order from "../entity/Order";
 
 @Resolver()
 export class OrderResolver {
-  @Mutation(() => Boolean)
+  @Mutation(() => Order)
   @UseMiddleware(isAuth)
   async createOrder(
-    @Arg("cartId") cartId: number,
     @Ctx() { req }: MyContext
-  ): Promise<boolean> {
+  ): Promise<Order> {
     const userId = req.session.userId;
-    const cart = await Cart.findOneOrFail({ where: { id: cartId, userId } });
+    const cart = await Cart.findOneOrFail({ where: { userId } });
 
     const orderItems = cart.cartItems.map(({ product, quantity }) => ({
       product,
@@ -23,8 +22,7 @@ export class OrderResolver {
     }));
 
     const order = await Order.create({ userId, orderItems }).save();
-    console.log(order);
 
-    return true;
+    return order;
   }
 }
