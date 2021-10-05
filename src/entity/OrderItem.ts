@@ -5,6 +5,7 @@ import {
   BaseEntity,
   ManyToOne,
   OneToOne,
+  JoinColumn,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import User from "./User";
@@ -19,6 +20,7 @@ class OrderItem extends BaseEntity {
   id: number;
 
   @OneToOne(() => Product, { eager: true })
+  @JoinColumn()
   @Field()
   product: Product;
 
@@ -26,7 +28,7 @@ class OrderItem extends BaseEntity {
   @Column()
   quantity: number;
 
-  @ManyToOne(() => Order, (order) => order.orderItems, { nullable: true })
+  @ManyToOne(() => Order, (order) => order.orderItems, { onDelete: "CASCADE" })
   order: Order;
 
   @Column("text", { nullable: true })
