@@ -26,7 +26,7 @@ class Cart extends BaseEntity {
   user: User;
 
   @Field(() => [CartItem], { defaultValue: [] })
-  @OneToMany(() => CartItem, (cartItem) => cartItem.cart, { eager: true })
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
   cartItems: CartItem[];
 }
 

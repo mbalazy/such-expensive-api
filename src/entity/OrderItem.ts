@@ -4,8 +4,6 @@ import {
   Column,
   BaseEntity,
   ManyToOne,
-  OneToOne,
-  JoinColumn,
 } from "typeorm";
 import { ObjectType, Field, ID } from "type-graphql";
 import User from "./User";
@@ -19,8 +17,7 @@ class OrderItem extends BaseEntity {
   @Field(() => ID)
   id: number;
 
-  @OneToOne(() => Product, { eager: true })
-  @JoinColumn()
+  @ManyToOne(() => Product)
   @Field()
   product: Product;
 

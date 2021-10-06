@@ -14,7 +14,16 @@ export const getCartData = async (
 ): Promise<CartData> => {
   // TODO use entity manager to fetch in one query
   const product = await Product.findOneOrFail(productId);
-  const cart = await Cart.findOneOrFail({ where: { userId } });
+  const cart = await Cart.findOneOrFail({
+    where: { userId },
+    join: {
+      alias: "cart",
+      leftJoinAndSelect: {
+        cartItems: "cart.cartItems",
+        product: "cartItems.product",
+      },
+    },
+  });
 
   const cartItem = cart.cartItems.find(
     (cartItem) => cartItem.product.id === productId

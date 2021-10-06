@@ -10,8 +10,22 @@ export class OrderResolver {
   @UseMiddleware(isAuth)
   async createOrder(@Ctx() { req }: MyContext): Promise<Order> {
     const userId = req.session.userId;
-    const cart = await Cart.findOneOrFail({ where: { userId } });
 
+    //TODO send cart in mutation options
+    //to make just one sql query to create order
+    const cart = await Cart.findOneOrFail({
+      where: { userId },
+      join: {
+        alias: "cart",
+        leftJoinAndSelect: {
+          cartItems: "cart.cartItems",
+          product: "cartItems.product",
+          user: "product.user"
+        },
+      },
+    });
+
+    console.log(cart);
     const orderItems = cart.cartItems.map(({ product, quantity }) => ({
       product,
       quantity,
@@ -28,7 +42,6 @@ export class OrderResolver {
   @UseMiddleware(isAuth)
   async getAllOrders(@Ctx() { req }: MyContext): Promise<Order[]> {
     const userId = req.session.userId;
-    console.log(userId);
     const orders = await Order.find({
       where: { userId },
       // relations: ['orderItems', 'orderItems.product']
@@ -40,7 +53,6 @@ export class OrderResolver {
         },
       },
     });
-    console.log(orders);
     return orders;
   }
 }

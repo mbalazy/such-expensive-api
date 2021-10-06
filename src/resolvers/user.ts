@@ -34,7 +34,7 @@ export class UserResolver {
     //TODO name >3 chars, pass >6 chars, valid email
     try {
       const hashedPassword = await argon2.hash(options.password);
-      //TODO create User and Cart in one query 
+      //TODO create User and Cart in one query, entity manager
       const user = await User.create({
         name: options.name,
         password: hashedPassword,

@@ -27,7 +27,7 @@ export class ProductResolver {
   @Query(() => [Product])
   @UseMiddleware(isAuth)
   async getAllProducts(@Ctx() { req }: MyContext): Promise<Product[]> {
-    return await Product.find({ where: { user: req.session.userId } });
+    return await Product.find({ where: { userId: req.session.userId } });
   }
 
   @Mutation(() => Product)
