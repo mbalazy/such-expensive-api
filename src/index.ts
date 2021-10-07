@@ -4,22 +4,14 @@ import redis from "redis";
 import session from "express-session";
 import connectRedis from "connect-redis";
 import { ApolloServer } from "apollo-server-express";
-import { buildSchema } from "type-graphql";
 import { createConnection } from "typeorm";
-import { UserResolver } from "./resolvers/user";
-import { ProductResolver } from "./resolvers/product";
-import { CartResolver } from "./resolvers/cart";
 import cors from "cors";
-import { OrderResolver } from "./resolvers/order";
+import { createSchema } from "./utils/createSchema";
 
 createConnection()
   .then(async () => {
     console.log("connected to db");
-    const schema = await buildSchema({
-      resolvers: [UserResolver, ProductResolver, CartResolver, OrderResolver],
-      validate: false,
-    });
-
+    const schema = await createSchema()
     const app = express();
     const RedisStore = connectRedis(session);
     const redisClient = redis.createClient();

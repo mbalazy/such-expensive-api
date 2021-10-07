@@ -19,6 +19,11 @@ import Cart from "../entity/Cart";
 
 @Resolver()
 export class UserResolver {
+  @Mutation(() => String)
+  async hello(@Arg("string") string: string) {
+    return string;
+  }
+
   @Query(() => User, { nullable: true })
   @UseMiddleware(isAuth)
   async me(@Ctx() { req }: MyContext) {
