@@ -1,3 +1,4 @@
 import { testConnection } from "./testConnection";
 
-testConnection(true).then(process.exit());
+testConnection(true)
+// testConnection(true).then(process.exit());
